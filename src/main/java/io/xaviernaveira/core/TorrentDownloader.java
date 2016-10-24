@@ -30,10 +30,18 @@ public class TorrentDownloader {
 
    public void start() throws Exception {
 
-      File torrentFile = new File(torrentFileName);
+      File torrentFile;
+
+      try {
+         torrentFile = new File(torrentFileName);
+      } catch (Exception e) {
+         logger.error(e.getMessage());
+         throw e;
+      }
 
       TorrentInfo ti = new TorrentInfo(torrentFile);
       s.download(ti, torrentFile.getParentFile());
+
 
    }
 

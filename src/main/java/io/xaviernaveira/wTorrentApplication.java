@@ -4,7 +4,6 @@ import com.frostwire.jlibtorrent.AlertListener;
 import com.frostwire.jlibtorrent.SessionManager;
 import com.frostwire.jlibtorrent.alerts.Alert;
 import com.frostwire.jlibtorrent.alerts.AlertType;
-import com.frostwire.jlibtorrent.alerts.BlockFinishedAlert;
 import com.frostwire.jlibtorrent.alerts.TorrentAddedAlert;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -71,12 +70,12 @@ public class wTorrentApplication extends Application<wTorrentConfiguration> {
                     logger.info("Torrent added");
                     ((TorrentAddedAlert) alert).handle().resume();
                     break;
-                case BLOCK_FINISHED:
-                    BlockFinishedAlert a = (BlockFinishedAlert) alert;
-                    int p = (int) (a.handle().status().progress() * 100);
-                    logger.info("Progress: " + p + " for download name: " + a.torrentName());
-                    logger.info("TotalDownload: %d", s.stats().totalDownload());
-                    break;
+//                case BLOCK_FINISHED:
+//                    BlockFinishedAlert a = (BlockFinishedAlert) alert;
+//                    int p = (int) (a.handle().status().progress() * 100);
+//                    logger.info("Progress: " + p + " for download name: " + a.torrentName());
+//                    logger.info("TotalDownload: %d", s.stats().totalDownload());
+//                    break;
                 case TORRENT_FINISHED:
                     logger.info("Torrent finished");
                     break;

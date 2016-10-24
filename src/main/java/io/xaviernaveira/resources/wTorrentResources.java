@@ -1,8 +1,9 @@
 package io.xaviernaveira.resources;
 
 import com.codahale.metrics.annotation.Timed;
+import com.frostwire.jlibtorrent.SessionHandle;
 import com.frostwire.jlibtorrent.SessionManager;
-import com.frostwire.jlibtorrent.swig.torrent_handle_vector;
+import com.frostwire.jlibtorrent.TorrentHandle;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.xaviernaveira.core.TorrentDownloader;
@@ -14,6 +15,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by xnaveira on 2016-10-21.
@@ -62,17 +65,13 @@ public class wTorrentResources {
    @GET
    @Path("/getdownloading")
    public Response getdownloading() {
-      torrent_handle_vector torrents = s.swig().get_torrents();
 
-      if (torrents.size() == 0) {
-         return Response.ok().entity(ImmutableMap.of("activetorrentslist", "[]")).build();
-      }
+      SessionHandle sessionHandle = new SessionHandle(s.swig());
+      List<TorrentHandle> activeTorrentList = sessionHandle.torrents();
 
-//      List<torrent_handle> activeTorrentsList = new ArrayList<>();
-//      for (int i=0;i<=torrents.size();i++) {
-//         activeTorrentsList.add(torrents.get(i));
-//      }
-      return Response.ok().entity(ImmutableMap.of("activetorrentslist",torrents)).build();
+      List<String> activeTorrentsNames = activeTorrentList.stream().map(t -> t.getName()).collect(Collectors.toList());
+
+      return Response.ok().entity(ImmutableMap.of("activetorrentslist",activeTorrentsNames)).build();
 
    }
 
