@@ -69,9 +69,11 @@ public class wTorrentResources {
       SessionHandle sessionHandle = new SessionHandle(s.swig());
       List<TorrentHandle> activeTorrentList = sessionHandle.torrents();
 
-      List<String> activeTorrentsNames = activeTorrentList.stream().map(t -> t.getName()).collect(Collectors.toList());
+      List<ImmutableMap<String, long[]>> activeTorrents = activeTorrentList.stream()
+         .map(t -> ImmutableMap.of(t.getName(), t.status()))
+         .collect(Collectors.toList());
 
-      return Response.ok().entity(ImmutableMap.of("activetorrentslist",activeTorrentsNames)).build();
+      return Response.ok().entity(ImmutableMap.of("activetorrentslist",activeTorrents)).build();
 
    }
 
