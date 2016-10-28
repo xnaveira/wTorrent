@@ -1,52 +1,9 @@
 package io.xaviernaveira.core;
 
-import com.frostwire.jlibtorrent.SessionManager;
-import com.frostwire.jlibtorrent.TorrentInfo;
-import io.xaviernaveira.wTorrentApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-
 /**
- * Created by xnaveira on 2016-10-21.
+ * Created by xnaveira on 2016-10-25.
  */
-public class TorrentDownloader {
-
-   private static final Logger logger = LoggerFactory.getLogger(wTorrentApplication.class);
-
-   private String torrentFileName;
-   private SessionManager s;
-
-
-
-   public TorrentDownloader(String torrentfile, SessionManager s)
-   {
-      this.torrentFileName = torrentfile;
-      this.s = s;
-
-   }
-
-
-   public void start() throws Exception {
-
-      File torrentFile;
-
-      try {
-         torrentFile = new File(torrentFileName);
-      } catch (Exception e) {
-         logger.error(e.getMessage());
-         throw e;
-      }
-
-      TorrentInfo ti = new TorrentInfo(torrentFile);
-      s.download(ti, torrentFile.getParentFile());
-
-
-   }
-
-
-   public void stop() throws Exception {
-
-   }
+public interface TorrentDownloader {
+   void start() throws Exception;
+   void stop() throws Exception;
 }

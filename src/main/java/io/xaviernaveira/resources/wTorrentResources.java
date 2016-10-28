@@ -6,7 +6,7 @@ import com.frostwire.jlibtorrent.SessionManager;
 import com.frostwire.jlibtorrent.TorrentHandle;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-import io.xaviernaveira.core.TorrentDownloader;
+import io.xaviernaveira.core.TorrentDownloaderFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,10 +47,13 @@ public class wTorrentResources {
    public Response download(@PathParam("torrent") String torrent) throws Exception {
       Preconditions.checkNotNull(torrent);
       try {
-         new TorrentDownloader(torrent, s).start();
+         new TorrentDownloaderFile(torrent, s).start();
+      } catch (FileNotFoundException e) {
+         logger.error(e.toString());
+         return Response.status(Response.Status.NOT_FOUND).entity(ImmutableMap.of("message", e.toString())).build();
       } catch (Exception e) {
-         logger.error(e.getMessage());
-         return Response.serverError().entity(ImmutableMap.of("message", e.getMessage())).build();
+         logger.error(e.toString());
+         return Response.serverError().entity(ImmutableMap.of("message", e.toString())).build();
       }
       return Response.ok().entity(ImmutableMap.of("message", "Download started.")).build();
    }
@@ -69,12 +73,19 @@ public class wTorrentResources {
       SessionHandle sessionHandle = new SessionHandle(s.swig());
       List<TorrentHandle> activeTorrentList = sessionHandle.torrents();
 
-      List<ImmutableMap<String, long[]>> activeTorrents = activeTorrentList.stream()
-         .map(t -> ImmutableMap.of(t.getName(), t.status()))
+      List<String> activeTorrents = activeTorrentList.stream()
+         .map(t -> t.getName())
          .collect(Collectors.toList());
 
       return Response.ok().entity(ImmutableMap.of("activetorrentslist",activeTorrents)).build();
 
+   }
+
+   @Timed
+   @GET
+   @Path("/stopdownlad/{id}")
+   public Response stopdownloading() {
+      return Response.ok().entity(ImmutableMap.of("message", "This method still doesn't stop anything")).build();
    }
 
    @Timed
@@ -84,8 +95,8 @@ public class wTorrentResources {
       try {
          s.restart();
       } catch (Exception e) {
-         logger.error(e.getMessage());
-         return Response.serverError().entity(ImmutableMap.of("message", e.getMessage())).build();
+         logger.error(e.toString());
+         return Response.serverError().entity(ImmutableMap.of("message", e.toString())).build();
       }
       return Response.ok().entity(ImmutableMap.of("message", "Session restarted")).build();
    }
