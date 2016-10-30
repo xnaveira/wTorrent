@@ -7,14 +7,18 @@ import com.frostwire.jlibtorrent.TorrentHandle;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.xaviernaveira.core.TorrentDownloaderFile;
+import io.xaviernaveira.core.TorrentDownloaderMagnet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.Valid;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,9 +33,11 @@ public class wTorrentResources {
    private static final Logger logger = LoggerFactory.getLogger(wTorrentResources.class);
 
    private final SessionManager s;
+   private File saveDir;
 
-   public wTorrentResources(SessionManager s) {
+   public wTorrentResources(SessionManager s, File saveDir) {
       this.s = s;
+      this.saveDir = saveDir;
    }
 
    @Timed
@@ -59,10 +65,17 @@ public class wTorrentResources {
    }
 
    @Timed
-   @GET
-   @Path("/downloadmagnet/{magnet}")
-   public Response downloadmagnet(@PathParam("downloadmagnet") String magnet) {
-      return Response.ok().entity(ImmutableMap.of("message", "This method still doesn't do anything.")).build();
+   @POST
+   @Path("/downloadmagnet")
+   public Response downloadmagnet(@Valid ImmutableMap<String,String> uri) throws Exception {
+      String magnet = uri.get("magnet");
+      try {
+         new TorrentDownloaderMagnet(magnet, s, saveDir).start();
+      } catch (Exception e) {
+         logger.error(e.toString());
+         return Response.serverError().entity(ImmutableMap.of("message", e.toString())).build();
+      }
+      return Response.ok().entity(ImmutableMap.of("message", "This method is under development.")).build();
    }
 
    @Timed
@@ -72,6 +85,9 @@ public class wTorrentResources {
 
       SessionHandle sessionHandle = new SessionHandle(s.swig());
       List<TorrentHandle> activeTorrentList = sessionHandle.torrents();
+
+      activeTorrentList.stream()
+         .forEach(s -> logger.info(String.format("%s: %s", s.getName(), s.infoHash())));
 
       List<String> activeTorrents = activeTorrentList.stream()
          .map(t -> t.getName())

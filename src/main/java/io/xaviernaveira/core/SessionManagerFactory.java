@@ -40,11 +40,18 @@ public class SessionManagerFactory {
             case TORRENT_FINISHED:
                logger.info("Torrent finished");
                break;
+            case SESSION_STATS:
+               s.postDhtStats();
+               break;
+            case DHT_STATS:
+               long nodes = s.stats().dhtNodes();
+               logger.info(String.format("DHT contains %d nodes.", nodes));
+               break;
             }
          }
       });
-
       s.start();
+      s.postDhtStats();
       return s;
    }
 }

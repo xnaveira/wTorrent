@@ -42,8 +42,7 @@ public class TorrentDownloaderFile implements TorrentDownloader {
          throw new FileNotFoundException();
       }
 
-      TorrentInfo ti = new TorrentInfo(torrentFile);
-      s.download(ti, torrentFile.getParentFile());
+      s.download(new TorrentInfo(torrentFile), torrentFile.getParentFile());
 
    }
 

@@ -9,6 +9,8 @@ import io.xaviernaveira.resources.wTorrentResources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 public class wTorrentApplication extends Application<wTorrentConfiguration> {
 
     static {
@@ -42,7 +44,7 @@ public class wTorrentApplication extends Application<wTorrentConfiguration> {
         //webChecker webchecker = new webChecker(client);
         //environment.lifecycle().manage(webchecker);
 
-        environment.jersey().register(new wTorrentResources(s));
+        environment.jersey().register(new wTorrentResources(s, new File(configuration.getSaveDir())));
     }
 
 }
