@@ -5,5 +5,4 @@ package io.xaviernaveira.core;
  */
 public interface TorrentDownloader {
    void start() throws Exception;
-   void stop() throws Exception;
 }

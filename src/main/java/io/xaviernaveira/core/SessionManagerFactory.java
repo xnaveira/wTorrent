@@ -5,6 +5,8 @@ import com.frostwire.jlibtorrent.SessionManager;
 import com.frostwire.jlibtorrent.alerts.Alert;
 import com.frostwire.jlibtorrent.alerts.AlertType;
 import com.frostwire.jlibtorrent.alerts.TorrentAddedAlert;
+import com.frostwire.jlibtorrent.alerts.TorrentFinishedAlert;
+import com.frostwire.jlibtorrent.alerts.TorrentRemovedAlert;
 import org.slf4j.Logger;
 
 /**
@@ -28,7 +30,7 @@ public class SessionManagerFactory {
 
             switch (type) {
             case TORRENT_ADDED:
-               logger.info("Torrent added");
+               logger.info(String.format("Torrent added: %s",((TorrentAddedAlert)alert).handle().getName()));
                ((TorrentAddedAlert) alert).handle().resume();
                break;
             //                case BLOCK_FINISHED:
@@ -38,7 +40,10 @@ public class SessionManagerFactory {
             //                    logger.info("TotalDownload: %d", s.stats().totalDownload());
             //                    break;
             case TORRENT_FINISHED:
-               logger.info("Torrent finished");
+               logger.info(String.format("Torrent finished: %s",((TorrentFinishedAlert)alert).handle().getName()));
+               break;
+            case TORRENT_REMOVED:
+               logger.info(String.format("Torrent removed: %s",((TorrentRemovedAlert)alert).handle().getName()));
                break;
             case SESSION_STATS:
                s.postDhtStats();

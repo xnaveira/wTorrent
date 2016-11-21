@@ -19,36 +19,31 @@ public class TorrentDownloaderFile implements TorrentDownloader {
 
    private String torrentFileName;
    private SessionManager s;
+   private File saveDir;
+   private File sourceDir;
 
 
-   public TorrentDownloaderFile(String torrentfile, SessionManager s)
+
+   public TorrentDownloaderFile(String torrentfile, SessionManager s, File saveDir, File sourceDir)
    {
       Preconditions.checkNotNull(torrentfile, "Error: File can't be nul when creating TorrentDownloaderFile");
       Preconditions.checkNotNull(s, "Error: session can't be null when creating TorrentDownloaderFile");
-      this.torrentFileName = torrentfile;
+      this.saveDir = saveDir;
+      this.sourceDir = sourceDir;
+      this.torrentFileName = sourceDir + "/" + torrentfile;
       this.s = s;
 
    }
 
 
    @Override
-   public void start() throws Exception {
-
+   public void start() throws FileNotFoundException {
       File torrentFile;
-
       torrentFile = new File(torrentFileName);
-
       if ( !torrentFile.isFile() ) {
+         logger.error(String.format("File not found: %s", torrentFileName));
          throw new FileNotFoundException();
       }
-
-      s.download(new TorrentInfo(torrentFile), torrentFile.getParentFile());
-
+      s.download(new TorrentInfo(torrentFile), saveDir);
    }
-
-   @Override
-   public void stop() throws Exception {
-
-   }
-
 }

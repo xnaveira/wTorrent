@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -31,67 +32,33 @@ public class TorrentDownloaderMagnet implements TorrentDownloader {
    }
 
 
-//   public void start(int nthreads) throws Exception {
-//
-//
-//      ExecutorService executor = Executors.newFixedThreadPool(nthreads);
-//      Callable<byte[]> task = () -> {
-//         System.out.println(String.format("Thread: %s", Thread.currentThread().getName()));
-//         return s.fetchMagnet(uri, 30);
-//      };
-//
-//      List<Callable<byte[]>> CList = new ArrayList<>();
-//      IntStream.range(0,nthreads)
-//         .forEach(CList.add(task));
-//
-//      executor.invokeAll(CList)
-//         .stream()
-//         .map(future -> {
-//            try {
-//               return future.get();
-//            } catch (Exception e) {
-//               throw new IllegalStateException(e);
-//            }
-//         })
-//         .forEach(future -> System.out.println(String.format("%s",future.toString())));
-//
-//
-//   }
-
    @Override
-   public void start() throws Exception {
+   public void start() throws IOException {
 
-      final CompletableFuture<byte[]> future = CompletableFuture.supplyAsync(()->s.fetchMagnet(uri,30));
+      final CompletableFuture<byte[]> future = CompletableFuture.supplyAsync(() -> s.fetchMagnet(uri,30));
       File wTempFile;
 
       try {
          wTempFile = File.createTempFile("wTorrent", ".torrent", new File(System.getProperty("java.io.tmpdir")));
-      } catch (Exception e) {
+      } catch (IOException e) {
          logger.error(e.toString());
          throw e;
       }
 
       FileOutputStream wTempFileStream = new FileOutputStream(wTempFile);
-      try {
-         future.thenAcceptAsync((v) -> {
-            try {
-               wTempFileStream.write(v);
-            } catch (Exception e) {
-               logger.error(e.toString());
-            }
-            TorrentInfo magnetTorrent = new TorrentInfo(wTempFile);
-            logger.info(String.format("Async magnet: %s", magnetTorrent.name()));
-            s.download(magnetTorrent, saveDir);
-         });
-      } catch (Exception e) {
-         logger.error(e.toString());
-      }
+      future.thenAcceptAsync((v) -> {
+         try {
+            wTempFileStream.write(v);
+         } catch (IOException e) {
+            logger.error(e.toString());
+            throw new RuntimeException("Error creating torrent file from magnet.");
+         }
+         TorrentInfo magnetTorrent = new TorrentInfo(wTempFile);
+         logger.info(String.format("Async magnet: %s", magnetTorrent.name()));
+         s.download(magnetTorrent, saveDir);
+      });
 
 
-   }
-
-   @Override
-   public void stop() throws Exception {
 
    }
 }

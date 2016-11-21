@@ -44,7 +44,11 @@ public class wTorrentApplication extends Application<wTorrentConfiguration> {
         //webChecker webchecker = new webChecker(client);
         //environment.lifecycle().manage(webchecker);
 
-        environment.jersey().register(new wTorrentResources(s, new File(configuration.getSaveDir())));
+        environment.jersey().register(
+           new wTorrentResources(
+              s,
+              new File(configuration.getSaveDir()),
+              new File(configuration.getSourceDir())));
     }
 
 }
